@@ -144,4 +144,4 @@ $ ping -c 5 192.168.61.133
 
 **NOTE: YOU CAN TRY TO PING THE HSS CONTAINER BUT IT WON'T WORK.**
 
-You are ready to [generate some traffic](./GENERATE_TRAFFIC.md).
+You are ready to [generate some traffic](./生成流量.md).

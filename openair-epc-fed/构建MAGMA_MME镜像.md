@@ -25,7 +25,7 @@
    3. [Build the MAGMA-MME Ubuntu18 Docker image](#63-build-the-magma-mme-ubuntu18-docker-image)
 
 
-This page is only for `Ubuntu18` builds. For other distributions, see [here](./BUILD_IMAGES.md).
+This page is only for `Ubuntu18` builds. For other distributions, see [here](./构建镜像.md).
 
 # 1.  Retrieve the proper code version on the OAI-CN part #
 

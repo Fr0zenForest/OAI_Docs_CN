@@ -7,24 +7,24 @@
       </a>
     </td>
     <td style="border-collapse: collapse; border: none; vertical-align: center;">
-      <b><font size = "5">OpenAirInterface 4G Core Network Deployment : Pulling Container Images in a MAGMA MME env</font></b>
+      <b><font size = "5">OpenAirInterface 4G 核心网部署 : 在 MAGMA MME 环境中拉取容器镜像</font></b>
     </td>
   </tr>
 </table>
 
-This page is only valid for an `Ubuntu18` host.
+本文仅对`Ubuntu18`有效。 
 
-If you are using any other distributions, please refer to [Build your own images](./BUILD_IMAGES_MAGMA_MME.md).
+如果你正在使用其他发行版，请参阅 [构建自己的镜像](./构建MAGMA_MME镜像.md).
 
-If you want to the up-to-date new features, please refer to [Build your own images](./BUILD_IMAGES_MAGMA_MME.md).
+如果您想了解最新的新功能，请参阅 [构建自己的镜像](./构建MAGMA_MME镜像.md).
 
-# Pulling the images from Docker Hub #
+# 从 Docker Hub 拉取镜像 #
 
-Currently the images are hosted under the `oaisoftwarealliance` organization.
+目前这些镜像托管在`oaisoftwarealliance`组织下。
 
-This may change in the future.
+将来可能会更换用户名。（注：以前镜像是放在rdefosseoai这个用户名下的，后来改成了oaisoftwarealliance，可参照[这里](https://github.com/OPENAIRINTERFACE/openair-epc-fed/pull/40)）
 
-Once again you may need to log on [docker-hub](https://hub.docker.com/) if your organization has reached pulling limit as `anonymous`.
+如果您的组织已达到`anonymous`的拉取限制，您可能需要再次登录 [docker-hub](https://hub.docker.com/) 
 
 ```bash
 $ docker login
@@ -33,7 +33,7 @@ Username:
 Password:
 ```
 
-Now pull images.
+现在拉取镜像：
 
 ```bash
 $ docker pull oaisoftwarealliance/oai-hss:latest
@@ -42,7 +42,7 @@ $ docker pull oaisoftwarealliance/oai-spgwu-tiny:latest
 $ docker pull oaisoftwarealliance/magma-mme:latest
 ```
 
-And **re-tag** them for tutorials' docker-compose file to work.
+并**re-tag**它们以使教程的 docker-compose 文件能够正常工作。
 
 ```bash
 $ docker image tag oaisoftwarealliance/oai-hss:latest oai-hss:production
@@ -51,19 +51,19 @@ $ docker image tag oaisoftwarealliance/oai-spgwu-tiny:latest oai-spgwu-tiny:prod
 $ docker image tag oaisoftwarealliance/magma-mme:latest magma-mme:master
 ```
 
-**CAUTION: The `MAGMA-MME` image is not updated as frequently as the other images and does not have any hack.**
+**注意：`MAGMA-MME` 镜像的更新频率不如其他镜像高，并且不存在任何后门。**
 
-**We still recommend that you build yourselves the MAGMA-MME image as described [here](./BUILD_IMAGES_MAGMA_MME.md).**
+**我们仍然建议您按照描述自行[构建 MAGMA-MME 映像](./构建MAGMA_MME镜像.md).**
 
-# Synchronizing the tutorials #
+# 同步教程 #
 
-**CAUTION: PLEASE READ THIS SECTION VERY CAREFULLY!**
+**注意：请仔细阅读本节！**
 
-This repository only has tutorials and Continuous Integration scripts.
+该存储库仅包含教程和持续集成脚本。
 
-**At the time of writing (2022/02/25), the release tag is `v1.2.0`.**
+**截至（2022/02/25），最新发布版为 `v1.2.0`.**
 
-| CNF Name    | Branch Name | Tag        | Ubuntu 18.04 | RHEL8 (UBI8)    |
+| CNF 名称    | 分支名称 | Tag        | Ubuntu 18.04 | RHEL8 (UBI8)    |
 | ----------- | ----------- | ---------- | ------------ | ----------------|
 | FED REPO    | N/A         | `v1.2.0`   |              |                 |
 | HSS         | `master`    | `v1.2.0`   | X            | X               |
@@ -71,13 +71,14 @@ This repository only has tutorials and Continuous Integration scripts.
 | SPGW-U-TINY | `master`    | `v1.2.0`   | X            | X               |
 
 ```bash
-# Clone directly on the latest release tag
+# 直接克隆最新版代码
 $ git clone --branch v1.2.0 https://github.com/OPENAIRINTERFACE/openair-epc-fed.git
 $ cd openair-epc-fed
-# If you forgot to clone directly to the latest release tag
+# 如果忘了克隆最新版
+#（可以这么补救，-f会直接覆盖原有的，拉来最新版）
 $ git checkout -f v1.2.0
 
-# Synchronize all git submodules
+# 同步所有子模块
 $ ./scripts/syncComponents.sh
 ---------------------------------------------------------
 OAI-HSS    component branch : master
@@ -89,10 +90,10 @@ git submodule init
 git submodule update
 ```
 
-Later versions of the `master` branch may not work with the pulled images.
+`master`分支的后续版本可能无法与拉取的镜像兼容。
 
-To deploy:
+部署:
 
-* See [Deploy with MAGMA-MME](../docker-compose/magma-mme-demo/README.md).
+* 参阅 [部署MAGMA-MME](../docker-compose/magma-mme-demo/README.md).
 
 
