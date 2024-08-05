@@ -229,11 +229,11 @@ The **SPGW-C**, 自引入 FDQN 支持以来，有 2 个变量：
 
 ### DNS设置 ###
 
-Your EPC Docker host has its own gateway --> you need to provide it as "Local DNS server".
+你的EPC Docker主机有自己的网关，你需要将这个网关设置为"本地DNS服务器"。
 
-**Otherwise** you won't have Internet access on your UE when it is connected to the Core Network!
+**否则** 当你的用户设备（UE）连接到核心网络时，将无法访问互联网！
 
-On your EPC docker host, type:
+在你的EPC容器宿主机上输入:
 
 ```bash
 $ route -n
@@ -243,53 +243,53 @@ Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
 ....
 ```
 
-In the **SPGW-C** section of the docker-compose file.
+在docker-compose文件中的 **SPGW-C** 节
 
-Use the 2nd field value as **<code>DEFAULT_DNS_IPV4_ADDRESS</code>** field.
+使用第二个字段值作为 **<code>DEFAULT_DNS_IPV4_ADDRESS</code>** 字段。
 
-In our example, as **<code>DEFAULT_DNS_SEC_IPV4_ADDRESS</code>** we are using Google's 2nd one. You can pick anything else.
+在我们的示例中，**<code>DEFAULT_DNS_SEC_IPV4_ADDRESS</code>** 我们使用 Google DNS作为备用DNS。您可以选择其他任何值。
 
-You can also ask your IT team!
+您也可以询问您的 IT 团队！
 
-You can tweak with the following 2 variables (but they are already at best values):
+您可以使用以下 2 个变量进行调整（但它们已经是最佳值）：
 
 * **<code>PUSH_PROTOCOL_OPTION</code>**
 * **<code>NETWORK_UE_NAT_OPTION</code>**
 
-### the UE IP address allocation pool ###
+### UE IP地址分配池 ###
 
-Last point: the UE IP address allocation pool is used to assign an IP address to the UE when it gets connected.
+最后一点：UE IP池用于在UE连接时为其分配IP地址。
 
-In our example, I chose "12.1.1.2 - 12.1.1.254" range.
+在我们的示例中, 我选择 "12.1.1.2 - 12.1.1.254" 作为IP的范围。
 
-Note that it is also defined in **CICDR** format for SPGW-U "12.1.1.0/24"
+请注意，SPGW-U 的IP地址范围也用 **CIDR** 格式定义为 "12.1.1.0/24"。
 
-If you have to change, please respect both formats.
+如果你需要更改，请同时遵循这两种格式。
 
-**SPGW-C** section of docker-compose file:
+docker-compose文件的 **SPGW-C** 部分:
 
 * **<code>UE_IP_ADDRESS_POOL_1</code>**
 
-**SPGW-U-TINY** section of docker-compose file:
+docker-compose文件的 **SPGW-U-TINY** 部分:
 
 * **<code>NETWORK_UE_IP</code>**
 
 ## 4.4. 杂项 ##
 
-At the time of writing (2021 / 02 / 01), the automation on the MAGMA-MME image is not completed.
+在撰写本文时（2021/02/01），MAGMA-MME 镜像上的自动化尚未完成。
 
-There are no entry-point scripts, no default MME configuration file.
+没有entry-point脚本，没有默认的 MME 配置文件。
 
-Hence there are 2 files in this folder:
+因此该文件夹中有 2 个文件：
 
-- `mme-cfg.sh` that behaves as `entrypoint`
-- `mme.conf` already completed MME configuration file
+- `mme-cfg.sh` 用作 `entrypoint`
+- `mme.conf` 已经完成的MME配置文件
 
-Both files do have pre-filled parameters such realm, IP addresses...
+两个文件中都预先填好了参数，比如领域（realm）、IP地址等。
 
-Be careful when modifying them.
+修改时要小心。
 
-Note that in the `mme.conf`, the **S6A** section has changed: the MME supports now the connection with an HSS entity in a different realm.
+注意，在 `mme.conf` 文件中，**S6A** 部分已经更改：MME 现在支持与不同领域的 HSS 实体连接。（注：S6A 是指MME和HSS之间的通信接口）
 
 ```bash
     S6A :
