@@ -15,37 +15,37 @@
 
 **TABLE OF CONTENTS**
 
-1.  [Verify your connectivity on all servers](#1-verify-your-connectivity-on-all-servers)
-    1.  [Between eNB and the EPC containers](#11-between-enb-and-the-epc-containers)
-    2.  [Between gNB and the EPC containers](#12-between-gnb-and-the-epc-containers)
-    3.  [Between eNB and gNB](#13-between-enb-and-gnb)
-2.  [Configuring your eNB and gNB](#2-configuring-your-enb-and-gnb)
+1.  [验证所有服务器的网络连接](#1-验证所有服务器的网络连接)
+    1.  [eNB 和 EPC 容器](#11-eNB-和-EPC-容器)
+    2.  [gNB 和 EPC 容器](#12-gNB-和-EPC-容器)
+    3.  [在eNB和gNB之间](#13-在eNB和gNB之间)
+2.  [配置您自己的eNB和gNB](#2-配置您自己的eNB和gNB)
 
-Here is a picture of what we will be doing:
+下图为我们需要做的:
 
 ![Block Diagram](./images/OAI-MAGMA-NSA-Demo-Network-configuration.png)
 
 
-# 1. Verify your connectivity on all servers #
+# 1. 验证所有服务器的网络连接 #
 
-## 1.1. Between eNB and the EPC containers ##
+## 1.1. eNB 和 EPC 容器 ##
 
-The eNB server **SHALL** see the MME and the SPGW-U containers.
+eNB 服务器 **必须** 能访问 MME 还有 SPGW-U 容器.
 
-The `demo-oai-public-net` docker network shall be reachable from the eNB server.
+Docker的 `demo-oai-public-net` 网络必须能被 eNB 服务器访问到。
 
-We need to add a IP route (based on the subnet defined in the docker-compose.yml file).
+我们得手动添加一条路由 (基于在 docker-compose.yml 文件中定义的子网).
 
 ```bash
 $ sudo ip route add 192.168.61.128/26 via EPC_DOCKER_HOST_IP_ADDR dev NIC1_NAME
 ```
 
-where:
+其中:
 
-- EPC_DOCKER_HOST_IP_ADDR is the IP address of the server that hosts all EPC containers
-- NIC1_NAME is the name of the default network interface (use `ifconfig` to retrieve it)
+- EPC_DOCKER_HOST_IP_ADDR 是EPC的一堆容器 (MME、SPGW什么的) 的宿主机
+- NIC1_NAME 是默认网卡名称 (可通过 `ifconfig` 查看)
 
-Verify with a ping:
+用ping确认下:
 
 ```bash
 $ ping -c 5 192.168.61.149
@@ -61,10 +61,10 @@ PING 192.168.61.149 (192.168.61.149) 56(84) bytes of data.
 rtt min/avg/max/mdev = 0.233/0.261/0.306/0.032 ms
 ```
 
-You can also verify the **SCTP** connection using a tool such as [sctp_test](https://manpages.debian.org/testing/lksctp-tools/sctp_test.1.en.html).
+也可以用像 [sctp_test](https://manpages.debian.org/testing/lksctp-tools/sctp_test.1.en.html)这种工具来验证下**SCTP** 协议的连接
 
 ```bash
-# On the EPC HOST server (no need to be in containers)
+# 在EPC的宿主机上 (不是在EPC容器内)
 $ sudo sctp_test -H EPC_DOCKER_HOST_IP_ADDR -P 36412 -l
 local:addr=EPC_DOCKER_HOST_IP_ADDR, port=36412, family=2
 seed = 1612270835
@@ -79,7 +79,7 @@ Server: Receiving packets.
 ```
 
 ```bash
-# On the eNB server
+# 在eNB服务器上
 $ sudo sctp_test -H ENB_IP_ADDR -P 36412 -h EPC_DOCKER_HOST_IP_ADDR -p 36412 -s
 remote:addr=EPC_DOCKER_HOST_IP_ADDR, port=36412, family=2
 local:addr=ENB_IP_ADDR, port=36412, family=2
@@ -91,15 +91,15 @@ Starting tests...
 Client: Sending packets.(1/10)
 ....
 ```
-## 1.2. Between gNB and the EPC containers ##
+## 1.2. gNB 和 EPC 容器 ##
 
-The gNB server **SHALL** see the SPGW-U containers.
+gNB服务器 **必须** 能访问到SPGW-U容器
 
 ```bash
 $ sudo ip route add 192.168.61.128/26 via EPC_DOCKER_HOST_IP_ADDR dev NIC2_NAME
 ```
 
-Verify with a ping:
+用Ping验证下:
 
 ```bash
 $ ping -c 5 192.168.61.133
@@ -115,14 +115,14 @@ PING 192.168.61.133 (192.168.61.133) 56(84) bytes of data.
 rtt min/avg/max/mdev = 0.233/0.261/0.306/0.032 ms
 ```
 
-## 1.3. Between eNB and gNB ##
+## 1.3. 在eNB和gNB之间 ##
 
-The gNB server **SHALL** also see the eNB through a **SCTP** connection.
+gNB和eNB间 **必须** 能用 **SCTP** 协议访问到。
 
-I strongly recommend to do this, especially if you are using CentOS/RHEL servers for eNB and gNB.
+我强烈建议这样做，特别是当您使用 CentOS/RHEL 服务器作为 eNB 和 gNB 时。
 
 ```bash
-# on such machines, after a reboot, we do this:
+# 在这种服务器上，重新启动后，我们执行以下操作：
 sudo setenforce 0
 sudo iptables -t nat -F
 sudo iptables -t filter -F
@@ -132,7 +132,7 @@ sudo iptables -t security -F
 ```
 
 ```bash
-# on the eNB server
+# 在eNB服务器上
 $ sudo sctp_test -H ENB_IP_ADDR -P 36422 -l
 local:addr=ENB_IP_ADDR, port=36422, family=2
 seed = 1612271429
@@ -146,7 +146,7 @@ Server: Receiving packets.
 ```
 
 ```bash
-# on the gNB server
+# 在gNB服务器上
 $ sudo sctp_test -H GNB_IP_ADDR -P 36422 -h ENB_IP_ADDR -p 36422 -s
 remote:addr=ENB_IP_ADDR, port=36422, family=2
 local:addr=GNB_IP_ADDR, port=36422, family=2
@@ -159,35 +159,39 @@ Client: Sending packets.(1/10)
 ...
 ```
 
-# 2. Configuring your eNB and gNB #
+# 2. 配置您自己的eNB和gNB #
 
-I will not explain how to compile or install. There are a lot of documentations [here](https://gitlab.eurecom.fr/oai/openairinterface5g/-/tree/develop/doc).
+在这儿我不会解释如何编译或安装，[这里](https://gitlab.eurecom.fr/oai/openairinterface5g/-/tree/develop/doc)有很多文档供参考。
 
-## 2.1. eNB Configuration file ##
+## 2.1. eNB配置文件 ##
 
-The one we use for the demo is the one used by the [OAI RAN CI for NSA FR1 setup](https://gitlab.eurecom.fr/oai/openairinterface5g/-/blob/develop/ci-scripts/conf_files/enb.band7.tm1.fr1.25PRB.usrpb210.conf)
+我们用于演示的是 [OAI RAN CI for NSA FR1 setup](https://gitlab.eurecom.fr/oai/openairinterface5g/-/blob/develop/ci-scripts/conf_files/enb.band7.tm1.fr1.25PRB.usrpb210.conf)
 
-The modifications we made:
+我们做了如下修改:
 
-We changed the name of the eNB. Cosmetic change!
+我们把 eNB 的名字改了，只是个表面改动！
 
 ```bash
 Active_eNBs = ( "eNB-OAI-MAGMA-NSA");
-# Asn1_verbosity, choice in: none, info, annoying
+
+# Asn1_verbosity, 可选项: none, info, annoying
 Asn1_verbosity = "none";
 
 eNBs =
 (
  {
-    # real_time choice in {hard, rt-preempt, no}
+    # real_time实时模式，可选项 {hard, rt-preempt, no}
+    # hard：硬实时模式，严格的实时性要求，适用于对时间敏感的操作。
+    # rt-preempt：实时抢占模式，提供较好的实时性能，但比硬实时稍微宽松一些。
+    # no：非实时模式，不强制实时性要求。
     real_time       =  "no";
     ////////// Identification parameters:
     eNB_ID    =  0xe01;
-    cell_type =  "CELL_MACRO_ENB";
+    cell_type =  "CELL_MACRO_ENB"; # 小区类型
     eNB_name  =  "eNB-OAI-MAGMA-NSA";
 ```
 
-And more important: the **MME_IP_ADDRESS**
+更重要的是:  **MME_IP_ADDRESS**
 
 ```bash
     enable_measurement_reports = "yes";
@@ -205,23 +209,23 @@ And more important: the **MME_IP_ADDRESS**
     enable_x2 = "yes";
 ```
 
-**CAUTION: `enable_measurement_reports` and `enable_x2` SHALL be set to Yes**
+**注意: `enable_measurement_reports` 和`enable_x2` 必须设置成 Yes**
 
-## 2.2. gNB Configuration file ##
+## 2.2. gNB 配置文件 ##
 
-Once again the one used by the [OAI RAN CI for NSA FR1 setup](https://gitlab.eurecom.fr/oai/openairinterface5g/-/blob/develop/ci-scripts/conf_files/gnb.band78.tm1.fr1.106PRB.usrpb210.conf).
+我们还用 [OAI RAN CI for NSA FR1 setup](https://gitlab.eurecom.fr/oai/openairinterface5g/-/blob/develop/ci-scripts/conf_files/gnb.band78.tm1.fr1.106PRB.usrpb210.conf)这套配置文件
 
-No particular changes.
+没啥改动。
 
-## 2.3. Tags we used. ##
+## 2.3. 我们用的Tag ##
 
-We used `2020.w51_2` at the time of writing, but any newer tag would be better. Since this part is quickly evolving with bug fixes and feature enhancements.
+在撰写本文时采用的tag是 `2020.w51_2`，但是版本越新越好。 因为这部分内容正随着错误修复和功能增强而快速发展。
 
-### UPDATE: 2021/06/17 ###
+### 2021/06/17 更新 ###
 
-I made an update on all tutorials and I used the latest possible commits/tags on every component:
+我对所有教程进行了更新，并在每个组件上使用了最新的提交/标签：
 
-Component | Branch | Commit | Date
+组件 | 分支 | Commit | 日期
 --- | --- | --- | ---
 `MAGMA` | `master` | `01135cd333c51431b3fcece8ba09b2b62d6711a4` | 2021/06/13
 `HSS`   | `develop` | `0e0d12e140294c7fd14fd187887e434c2273a012` | 2021/05/21
@@ -229,11 +233,11 @@ Component | Branch | Commit | Date
 `SPGW-U-TINY` | `develop` | `8b39dcad77fa96edcff135a318ea3a59ed33923e` | 2021/06/01
 `eNB/gNB` | `develop` | `2021.w23` | 2021/06/14
 
-**Last point:** Compared to the recorded video (link below), on 2021/06/17, I used another COTS-UE:
+**最后:** 与录制的视频（下方链接）相比，在 2021/06/17，我使用了另一个 COTS-UE：
 
-* an `USB-powered` modem (not a smartphone), **Quectel RM500Q-GL** module.
+* 一个 **Quectel RM500Q-GL** USB流量网卡，不是智能手机。
 
-# 3. Link to video #
+# 3. 视频链接 #
 
-A video is available on [Youtube](https://youtu.be/bnhguk6CfOk).
+ [Youtube：OpenAirInterface / MAGMA 5G NSA Demonstration](https://youtu.be/bnhguk6CfOk).
 
