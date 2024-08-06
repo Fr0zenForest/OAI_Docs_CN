@@ -7,34 +7,34 @@
       </a>
     </td>
     <td style="border-collapse: collapse; border: none; vertical-align: center;">
-      <b><font size = "5">OpenAirInterface Core Network Docker Deployment : Configure Networking</font></b>
+      <b><font size = "5">OpenAirInterface 核心网 Docker 部署 : 网络设置</font></b>
     </td>
   </tr>
 </table>
 
 
-**TABLE OF CONTENTS**
+**目录**
 
-1.  [Networking](#1-networking)
-2.  [After Deployment](#2-after-deploying-your-cnf-containers)
+1.  [网络](#1-网络)
+2.  [部署完成后](#2-部署完成cNF容器后)
 
 
-# 1. Networking #
+# 1. 网络 #
 
-Accessing a Docker container from the server you've deployed it on is easy.
+从部署了 Docker 容器的服务器访问它很容易。
 
-Accessing a Docker container from another server is NOT.
+从另一台服务器访问 Docker 容器则不行。
 
-Here is a picture of what we will be doing:
+下面图片表述了我们具体需要做什么：
 
 ![Block Diagram](./images/OAICN-Network-Deployment-Explanation.png)
 
-**The objective is to be able to ping the MME and SPGW-U containers from the eNB server(s)**.
+**目标是能够从 eNB 服务器 ping MME 和 SPGW-U 容器**.
 
 
-## Step 1 : create a docker network on your EPC docker host. ##
+## Step 1 : 在您的 EPC docker 主机上创建一个 docker 网络 ##
 
-By just deploying the Cassandra container(s), you will create 2 docker networks:
+只需部署 Cassandra 容器，您将创建 2 个 docker 网络：
 
 ```bash
 $ cd docker-compose/magma-mme-demo
@@ -71,15 +71,16 @@ $ docker network inspect demo-oai-public-net
 ]
 ```
 
-As you can see, the public network (`demo-oai-public-net`) is using the range `192.168.61.128/26`.
 
-If this IP range **DOES NOT** suit your network environment, you have a lot of editing.
+如您所见，公共网络(`demo-oai-public-net`)正在使用范围`192.168.61.128/26`。
 
-## Step 2: create a route on your eNB/gNB server(s) ##
+如果IP地址 **不适合** 您的网络环境, 那可有得改了
 
-In the servers that are hosting the eNB(s) and/or gNB(s), create IP route(s):
+## Step 2: 在您的 eNB/gNB 服务器上创建路由 ##
 
-The following are examples. **PLEASE ADAPT TO YOUR ENVIRONMENT.**
+在 eNB 或 gNB 的服务器中，创建 IP 路由：
+
+以下为示例。**请适应您自己的网络环境。**
 
 ```bash
 # On minimassive
@@ -92,32 +93,34 @@ sudo ip route add 192.168.61.128/26 via 192.168.18.197 dev nm-bond
 sudo ip route add 192.168.61.128/26 via 192.168.18.197 dev nm-bond
 ```
 
-- Where `192.168.18.197` is the IP address of the **Docker Host**
-- Where `bond0` is the **Network Interface Controller(NIC)** of the eNB server (minimassive in our case).
-- Where `nm-bond` is the **NIC** of the gNB server (mozart/caracal in our case).
+- 其中 `192.168.18.197` 是 **Docker Host** 的 IP 地址
+- 其中 `bond0` 是 eNB 服务器（在我们的例子中为 minimassive）的 **网络接口控制器 (NIC)**。
+- 其中 `nm-bond` 是 gNB 服务器（在我们的例子中为 mozart/caracal）的 **NIC**。
 
-# 2. After deploying your cNF containers #
+# 2. 部署完成cNF容器后 #
 
-Normally you did:
+通常需要：
 
 ```bash
 $ docker-compose up -d oai_spgwu
 ```
 
-## Verify your network configuration ##
+## 验证网络配置 ##
 
-Let make sure your routing on the eNB server is correct.
+确保 eNB 服务器上的路由是正确的。
 
-**On your EPC Docker Host:** recover the MME IP address:
+**在您用docker部署EPC容器的主机上:** 找到 MME 的IP:
 
 ```bash
 $ docker inspect --format="{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}" demo-magma-mme
 192.168.61.149
 ```
 
-You can also find in the `docker-compose.yml` file.
+您也可以在 `docker-compose.yml` 文件中找到。
 
-**On your eNB server:**
+**在您 eNB 服务器上:**
+
+注：这一段说的是需要在eNB侧，ping通EPC中的 MME 和 SPGW-U
 
 ```bash
 $ ping -c 5 192.168.61.149
@@ -133,7 +136,7 @@ PING 192.168.61.149 (192.168.61.149) 56(84) bytes of data.
 rtt min/avg/max/mdev = 0.233/0.261/0.306/0.032 ms
 ```
 
-Same thing for SPGW-U IP address:
+对于 SPGW-U 也一样：
 
 ```bash
 $ ping -c 5 192.168.61.133
@@ -142,6 +145,6 @@ $ ping -c 5 192.168.61.133
 ...
 ```
 
-**NOTE: YOU CAN TRY TO PING THE HSS CONTAINER BUT IT WON'T WORK.**
+**注意：您可以尝试 Ping HSS 容器，但是它将不起作用。**
 
-You are ready to [generate some traffic](./生成流量.md).
+现在可以 [生成点测试流量](./生成流量.md) 了
