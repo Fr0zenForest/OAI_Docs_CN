@@ -314,9 +314,9 @@ docker-compose文件的 **SPGW-U-TINY** 部分:
 
 eNB 服务器上的网络配置仍然有效。
 
-参阅[这里](../../docs/CONFIGURE_NETWORKS_MAGMA.md#step-2-create-a-route-on-your-enbgnb-servers)了解要执行的命令。
+参阅[这里](../../配置MAGMA网络.md#step-2-在您的-enbgnb-服务器上创建路由)了解要执行的命令。
 
-还有[这里](../../docs/CONFIGURE_NETWORKS_MAGMA.md#verify-your-network-configuration)以获取要验证的命令。
+还有[这里](../../配置MAGMA网络.md#验证网络配置)以获取要验证的命令。
 
 # 6. 使用OAI RAN的NSA网络连接5G手机 #
 
